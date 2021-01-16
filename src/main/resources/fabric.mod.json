@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "someforgepatchesported",
+  "version": "${version}",
+  "name": "Some Forge Patches Ported",
+  "environment": "*",
+  "mixins": [
+    "someforgepatchesported.mixins.json"
+  ],
+  "accessWidener": "someforgepatchesported.accesswidener",
+  "depends": {
+    "minecraft": ">=1.16.2"
+  }
+}

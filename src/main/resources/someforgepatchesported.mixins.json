@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "me.shedaniel.someforgepatchesported.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": ["MixinLevelStorageSource", "MixinMappedRegistry"],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

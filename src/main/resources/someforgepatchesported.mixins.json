@@ -2,7 +2,7 @@
   "required": true,
   "package": "me.shedaniel.someforgepatchesported.mixin",
   "compatibilityLevel": "JAVA_8",
-  "mixins": ["MixinLevelStorageSource", "MixinMappedRegistry"],
+  "mixins": ["MixinLevelStorageSource", "MixinMappedRegistry", "RegistryReadOpsAccessor"],
   "client": [
   ],
   "injectors": {

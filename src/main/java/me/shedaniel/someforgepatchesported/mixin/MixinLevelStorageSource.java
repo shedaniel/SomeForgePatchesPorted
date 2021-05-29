@@ -1,5 +1,6 @@
 package me.shedaniel.someforgepatchesported.mixin;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFixer;
@@ -13,7 +14,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +56,7 @@ public class MixinLevelStorageSource {
     private static final String SEED_KEY = "seed";
     //No to static init!
     @Unique
-    private static final LazyLoadedValue<Codec<MappedRegistry<LevelStem>>> CODEC = new LazyLoadedValue<>(() ->
+    private static final Supplier<Codec<MappedRegistry<LevelStem>>> CODEC = Suppliers.memoize(() ->
             MappedRegistry.dataPackCodec(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable(), LevelStem.CODEC)
                     .xmap(LevelStem::sortMap, Function.identity())
     );
@@ -66,10 +67,9 @@ public class MixinLevelStorageSource {
      */
     @Unique
     private static <T> Dynamic<T> fixUpDimensionsData(Dynamic<T> data) {
-        if (!(data.getOps() instanceof RegistryReadOps))
+        if (!(data.getOps() instanceof RegistryReadOps<T> ops))
             return data;
 
-        RegistryReadOps<T> ops = (RegistryReadOps<T>) data.getOps();
         Dynamic<T> dymData = data.get(DIMENSIONS_KEY).orElseEmptyMap();
         Dynamic<T> withInjected = dymData.asMapOpt().map(current ->
         {
@@ -79,7 +79,7 @@ public class MixinLevelStorageSource {
             // FixUp deleted vanilla dims.
             if (!currentDimNames.containsAll(VANILLA_DIMS)) {
                 LOGGER.warn("Detected missing vanilla dimensions from the world!");
-                RegistryAccess.RegistryHolder regs = ops.registryHolder;
+                RegistryAccess regs = ((RegistryReadOpsAccessor) ops).getRegistryAccess();
 
                 long seed = data.get(SEED_KEY).get().result().map(d -> d.asLong(0L)).orElse(0L);
                 Registry<Biome> biomeReg = regs.registryOrThrow(Registry.BIOME_REGISTRY);

@@ -82,14 +82,12 @@ public class MixinLevelStorageSource {
                 RegistryAccess regs = ((RegistryReadOpsAccessor) ops).getRegistryAccess();
 
                 long seed = data.get(SEED_KEY).get().result().map(d -> d.asLong(0L)).orElse(0L);
-                Registry<Biome> biomeReg = regs.registryOrThrow(Registry.BIOME_REGISTRY);
                 Registry<DimensionType> typeReg = regs.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-                Registry<NoiseGeneratorSettings> noiseReg = regs.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
 
                 //Loads the default nether and end
-                MappedRegistry<LevelStem> dimReg = DimensionType.defaultDimensions(typeReg, biomeReg, noiseReg, seed);
+                MappedRegistry<LevelStem> dimReg = DimensionType.defaultDimensions(regs, seed);
                 //Loads the default overworld
-                dimReg = WorldGenSettings.withOverworld(typeReg, dimReg, WorldGenSettings.makeDefaultOverworld(biomeReg, noiseReg, seed));
+                dimReg = WorldGenSettings.withOverworld(typeReg, dimReg, WorldGenSettings.makeDefaultOverworld(regs, seed));
 
                 // Encode and decode the registry. This adds any dimensions from datapacks (see SimpleRegistryCodec#decode), but only the vanilla overrides are needed.
                 // This assumes that the datapacks for the vanilla dimensions have not changed since they were "deleted"
